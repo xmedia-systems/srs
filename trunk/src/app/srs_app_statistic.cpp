@@ -112,6 +112,9 @@ SrsStatisticStream::SrsStatisticStream()
     
     nb_clients = 0;
     nb_frames = 0;
+    
+    width = 0;
+    height = 0;
 }
 
 SrsStatisticStream::~SrsStatisticStream()
@@ -148,7 +151,9 @@ int SrsStatisticStream::dumps(stringstream& ss)
         ss  << SRS_JFIELD_NAME("video") << SRS_JOBJECT_START
                 << SRS_JFIELD_STR("codec", srs_codec_video2str(vcodec)) << SRS_JFIELD_CONT
                 << SRS_JFIELD_STR("profile", srs_codec_avc_profile2str(avc_profile)) << SRS_JFIELD_CONT
-                << SRS_JFIELD_STR("level", srs_codec_avc_level2str(avc_level))
+                << SRS_JFIELD_STR("level", srs_codec_avc_level2str(avc_level)) << SRS_JFIELD_CONT
+                << SRS_JFIELD_ORG("width",  width) << SRS_JFIELD_CONT
+                << SRS_JFIELD_ORG("height",  height)
                 << SRS_JOBJECT_END
             << SRS_JFIELD_CONT;
     }
@@ -296,7 +301,7 @@ SrsStatisticClient* SrsStatistic::find_client(int cid)
 }
 
 int SrsStatistic::on_video_info(SrsRequest* req, 
-    SrsCodecVideo vcodec, SrsAvcProfile avc_profile, SrsAvcLevel avc_level
+    SrsCodecVideo vcodec, SrsAvcProfile avc_profile, SrsAvcLevel avc_level, int width, int height
 ) {
     int ret = ERROR_SUCCESS;
     
@@ -307,6 +312,8 @@ int SrsStatistic::on_video_info(SrsRequest* req,
     stream->vcodec = vcodec;
     stream->avc_profile = avc_profile;
     stream->avc_level = avc_level;
+    stream->width = width;
+    stream->height = height;
     
     return ret;
 }
