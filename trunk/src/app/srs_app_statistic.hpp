@@ -86,6 +86,8 @@ public:
     // The width and height in codec info.
     int width;
     int height;
+    // frame rate
+    int frame_rate;
 public:
     bool has_audio;
     SrsCodecAudio acodec;
