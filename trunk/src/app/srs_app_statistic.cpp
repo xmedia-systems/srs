@@ -301,7 +301,7 @@ SrsStatisticClient* SrsStatistic::find_client(int cid)
 }
 
 int SrsStatistic::on_video_info(SrsRequest* req, 
-    SrsCodecVideo vcodec, SrsAvcProfile avc_profile, SrsAvcLevel avc_level, int width, int height
+    SrsCodecVideo vcodec, SrsAvcProfile avc_profile, SrsAvcLevel avc_level, int frame_rate, int width, int height
 ) {
     int ret = ERROR_SUCCESS;
     
@@ -314,6 +314,7 @@ int SrsStatistic::on_video_info(SrsRequest* req,
     stream->avc_level = avc_level;
     stream->width = width;
     stream->height = height;
+    stream->frame_rate = frame_rate;
     
     return ret;
 }
