@@ -25,6 +25,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <unistd.h>
 #include <sstream>
+#include <math.h>  
 using namespace std;
 
 #include <srs_rtmp_stack.hpp>
@@ -115,6 +116,8 @@ SrsStatisticStream::SrsStatisticStream()
     
     width = 0;
     height = 0;
+    frame_rate = 0;
+    last_frames = 0;
 }
 
 SrsStatisticStream::~SrsStatisticStream()
@@ -151,8 +154,11 @@ int SrsStatisticStream::dumps(stringstream& ss)
         ss  << SRS_JFIELD_NAME("video") << SRS_JOBJECT_START
                 << SRS_JFIELD_STR("codec", srs_codec_video2str(vcodec)) << SRS_JFIELD_CONT
                 << SRS_JFIELD_STR("profile", srs_codec_avc_profile2str(avc_profile)) << SRS_JFIELD_CONT
-                << SRS_JFIELD_STR("level", srs_codec_avc_level2str(avc_level)) << SRS_JFIELD_CONT
-                << SRS_JFIELD_ORG("width",  width) << SRS_JFIELD_CONT
+                << SRS_JFIELD_STR("level", srs_codec_avc_level2str(avc_level)) << SRS_JFIELD_CONT;
+        if(frame_rate) {
+            ss << SRS_JFIELD_ORG("frame_rate",  frame_rate) << SRS_JFIELD_CONT;
+		}
+        ss  << SRS_JFIELD_ORG("width",  width) << SRS_JFIELD_CONT
                 << SRS_JFIELD_ORG("height",  height)
                 << SRS_JOBJECT_END
             << SRS_JFIELD_CONT;
@@ -344,6 +350,10 @@ int SrsStatistic::on_video_frames(SrsRequest* req, int nb_frames)
     SrsStatisticStream* stream = create_stream(vhost, req);
     
     stream->nb_frames += nb_frames;
+    if(stream->last_frames > 0) {
+		stream->frame_rate = (int)round(nb_frames * 1000 / (float_t)(srs_get_system_time_ms() - stream->last_frames));
+	}
+	stream->last_frames = srs_get_system_time_ms();
     
     return ret;
 }

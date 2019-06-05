@@ -71,6 +71,7 @@ public:
     int connection_cid;
     int nb_clients;
     uint64_t nb_frames;
+    int64_t last_frames;
 public:
     /**
     * stream total kbps.
@@ -86,6 +87,7 @@ public:
     // The width and height in codec info.
     int width;
     int height;
+    int frame_rate;
 public:
     bool has_audio;
     SrsCodecAudio acodec;
