@@ -171,6 +171,7 @@ public:
     virtual int on_video_info(SrsRequest* req, 
         SrsCodecVideo vcodec, SrsAvcProfile avc_profile, SrsAvcLevel avc_level, int width, int height
     );
+    virtual int on_meta_data(SrsRequest* req, SrsAmf0Object* shared_metadata);
     /**
     * when got audio info for stream.
     */

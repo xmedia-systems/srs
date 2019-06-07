@@ -1505,6 +1505,11 @@ int SrsSource::on_meta_data(SrsCommonMessage* msg, SrsOnMetaDataPacket* metadata
     }
 #endif
 
+	SrsStatistic* stat = SrsStatistic::instance();
+    if ((ret = stat->on_meta_data(_req, metadata->metadata)) != ERROR_SUCCESS) {
+            return ret;
+    }
+
     SrsAmf0Any* prop = NULL;
     
     // when exists the duration, remove it to make ExoPlayer happy.
@@ -1525,6 +1530,9 @@ int SrsSource::on_meta_data(SrsCommonMessage* msg, SrsOnMetaDataPacket* metadata
     }
     if ((prop = metadata->metadata->ensure_property_number("audiocodecid")) != NULL) {
         ss << ", acodec=" << (int)prop->to_number();
+    }
+    if ((prop = metadata->metadata->ensure_property_number("framerate")) != NULL) {
+        ss << ", framerate=" << (int)prop->to_number();
     }
     srs_trace("got metadata%s", ss.str().c_str());
     

@@ -34,6 +34,7 @@ using namespace std;
 #include <srs_app_conn.hpp>
 #include <srs_app_config.hpp>
 #include <srs_kernel_utility.hpp>
+#include <srs_rtmp_amf0.hpp>
 
 int64_t srs_gvid = getpid();
 
@@ -324,6 +325,18 @@ int SrsStatistic::on_video_info(SrsRequest* req,
     return ret;
 }
 
+int SrsStatistic::on_meta_data(SrsRequest* req, SrsAmf0Object* metadata)
+{
+	SrsStatisticVhost* vhost = create_vhost(req);
+    SrsStatisticStream* stream = create_stream(vhost, req);
+    
+    SrsAmf0Any* prop = NULL;
+    if ((prop = metadata->ensure_property_number("framerate")) != NULL) {
+        stream->frame_rate = (int)prop->to_number();
+    }
+    return ERROR_SUCCESS;
+}
+
 int SrsStatistic::on_audio_info(SrsRequest* req,
     SrsCodecAudio acodec, SrsCodecAudioSampleRate asample_rate, SrsCodecAudioSoundType asound_type,
     SrsAacObjectType aac_object
@@ -350,11 +363,14 @@ int SrsStatistic::on_video_frames(SrsRequest* req, int nb_frames)
     SrsStatisticStream* stream = create_stream(vhost, req);
     
     stream->nb_frames += nb_frames;
-    if(stream->last_frames > 0) {
-		stream->frame_rate = (int)round(nb_frames * 1000 / (float_t)(srs_get_system_time_ms() - stream->last_frames));
-	}
-	stream->last_frames = srs_get_system_time_ms();
     
+    // update frame rate only once and only if not already supplied in meta data
+    if(stream->frame_rate == 0) {
+		if(stream->last_frames > 0)
+			stream->frame_rate = (int)round(nb_frames * 1000 / (float_t)(srs_get_system_time_ms() - stream->last_frames));
+		else
+			stream->last_frames = srs_get_system_time_ms();
+	}    
     return ret;
 }
 
