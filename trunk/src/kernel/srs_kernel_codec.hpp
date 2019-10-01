@@ -173,6 +173,7 @@ enum SrsCodecAudioSampleRate
     SrsCodecAudioSampleRate11025                    = 1,
     SrsCodecAudioSampleRate22050                    = 2,
     SrsCodecAudioSampleRate44100                    = 3,
+    SrsCodecAudioSampleRate48000                    = 5,
 };
 
 /**

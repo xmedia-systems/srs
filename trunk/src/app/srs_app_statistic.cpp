@@ -334,6 +334,35 @@ int SrsStatistic::on_meta_data(SrsRequest* req, SrsAmf0Object* metadata)
     if ((prop = metadata->ensure_property_number("framerate")) != NULL) {
         stream->frame_rate = (int)prop->to_number();
     }
+    if ((prop = metadata->get_property("stereo")) != NULL) {
+        stream->asound_type = (bool)prop->to_boolean() ? SrsCodecAudioSoundTypeStereo : SrsCodecAudioSoundTypeMono;
+    } else {
+        stream->asound_type = SrsCodecAudioSoundTypeReserved;
+    }
+    if ((prop = metadata->ensure_property_number("audiosamplerate")) != NULL) {
+        switch ((int)prop->to_number())
+        {
+        case 5512:
+            stream->asample_rate = SrsCodecAudioSampleRate5512;
+            break;
+        case 11025:
+            stream->asample_rate = SrsCodecAudioSampleRate11025;
+            break;
+        case 22050:
+            stream->asample_rate = SrsCodecAudioSampleRate22050;
+            break;
+        case 44100:
+            stream->asample_rate = SrsCodecAudioSampleRate44100;
+            break;
+        case 48000:
+            stream->asample_rate = SrsCodecAudioSampleRate48000;
+            break;
+        default:
+            stream->asample_rate = SrsCodecAudioSampleRateReserved;
+        }
+    } else {
+        stream->asample_rate = SrsCodecAudioSampleRateReserved;
+    }
     return ERROR_SUCCESS;
 }
 
@@ -348,8 +377,10 @@ int SrsStatistic::on_audio_info(SrsRequest* req,
 
     stream->has_audio = true;
     stream->acodec = acodec;
-    stream->asample_rate = asample_rate;
-    stream->asound_type = asound_type;
+    if( stream->asample_rate == SrsCodecAudioSampleRateReserved )
+        stream->asample_rate = asample_rate;
+    if( stream->asound_type == SrsCodecAudioSoundTypeReserved )
+        stream->asound_type = asound_type;
     stream->aac_object = aac_object;
     
     return ret;
