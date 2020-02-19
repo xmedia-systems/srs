@@ -360,6 +360,47 @@ srs_error_t SrsStatistic::on_audio_info(SrsRequest* req, SrsAudioCodecId acodec,
     return err;
 }
 
+srs_error_t SrsStatistic::on_meta_data(SrsRequest* req, SrsAmf0Object* metadata)
+{
+	SrsStatisticVhost* vhost = create_vhost(req);
+    SrsStatisticStream* stream = create_stream(vhost, req);
+
+    SrsAmf0Any* prop = NULL;
+    if ((prop = metadata->ensure_property_number("framerate")) != NULL) {
+        stream->frame_rate = (int)prop->to_number();
+    }
+    if ((prop = metadata->get_property("stereo")) != NULL) {
+        stream->asound_type = (bool)prop->to_boolean() ? SrsCodecAudioSoundTypeStereo : SrsCodecAudioSoundTypeMono;
+    } else {
+        stream->asound_type = SrsCodecAudioSoundTypeReserved;
+    }
+    if ((prop = metadata->ensure_property_number("audiosamplerate")) != NULL) {
+        switch ((int)prop->to_number())
+        {
+        case 5512:
+            stream->asample_rate = SrsCodecAudioSampleRate5512;
+            break;
+        case 11025:
+            stream->asample_rate = SrsCodecAudioSampleRate11025;
+            break;
+        case 22050:
+            stream->asample_rate = SrsCodecAudioSampleRate22050;
+            break;
+        case 44100:
+            stream->asample_rate = SrsCodecAudioSampleRate44100;
+            break;
+        case 48000:
+            stream->asample_rate = SrsCodecAudioSampleRate48000;
+            break;
+        default:
+            stream->asample_rate = SrsCodecAudioSampleRateReserved;
+        }
+    } else {
+        stream->asample_rate = SrsCodecAudioSampleRateReserved;
+    }
+    return srs_success;
+}
+
 srs_error_t SrsStatistic::on_video_frames(SrsRequest* req, int nb_frames)
 {
     srs_error_t err = srs_success;
@@ -368,7 +409,13 @@ srs_error_t SrsStatistic::on_video_frames(SrsRequest* req, int nb_frames)
     SrsStatisticStream* stream = create_stream(vhost, req);
     
     stream->nb_frames += nb_frames;
-    
+    // update frame rate only once and only if not already supplied in meta data
+    if(stream->frame_rate == 0) {
+		if(stream->last_frames > 0)
+			stream->frame_rate = (int)round(nb_frames * 1000 / (float_t)(srs_get_system_time_ms() - stream->last_frames));
+		else
+			stream->last_frames = srs_get_system_time_ms();
+	}    
     return err;
 }
 

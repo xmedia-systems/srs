@@ -84,6 +84,7 @@ public:
     // The width and height in codec info.
     int width;
     int height;
+    int frame_rate;
 public:
     bool has_audio;
     SrsAudioCodecId acodec;
@@ -166,6 +167,8 @@ public:
     // When got videos, update the frames.
     // We only stat the total number of video frames.
     virtual srs_error_t on_video_frames(SrsRequest* req, int nb_frames);
+    
+    virtual srs_error_t on_meta_data(SrsRequest* req, SrsAmf0Object* shared_metadata);
     // When publish stream.
     // @param req the request object of publish connection.
     // @param cid the cid of publish connection.
