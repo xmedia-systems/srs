@@ -910,6 +910,8 @@ srs_error_t SrsFormat::avc_demux_sps_rbsp(char* rbsp, int nb_rbsp)
     }
     
     int32_t chroma_format_idc = -1;
+    int8_t separate_colour_plane_flag = 0;
+
     if (profile_idc == 100 || profile_idc == 110 || profile_idc == 122 || profile_idc == 244
         || profile_idc == 44 || profile_idc == 83 || profile_idc == 86 || profile_idc == 118
         || profile_idc == 128) {
@@ -917,7 +919,6 @@ srs_error_t SrsFormat::avc_demux_sps_rbsp(char* rbsp, int nb_rbsp)
             return srs_error_wrap(err, "read chroma_format_idc");
         }
         if (chroma_format_idc == 3) {
-            int8_t separate_colour_plane_flag = -1;
             if ((err = srs_avc_nalu_read_bit(&bs, separate_colour_plane_flag)) != srs_success) {
                 return srs_error_wrap(err, "read separate_colour_plane_flag");
             }
@@ -1019,9 +1020,67 @@ srs_error_t SrsFormat::avc_demux_sps_rbsp(char* rbsp, int nb_rbsp)
         return srs_error_wrap(err, "read pic_height_in_map_units_minus1");;
     }
     
-    vcodec->width = (int)(pic_width_in_mbs_minus1 + 1) * 16;
-    vcodec->height = (int)(pic_height_in_map_units_minus1 + 1) * 16;
+    int8_t frame_mbs_only_flag = -1;
+    int8_t mb_adaptive_frame_field_flag = -1;
+    int8_t direct_8x8_inference_flag = -1;
+    if ((err = srs_avc_nalu_read_bit(&bs, frame_mbs_only_flag)) != ERROR_SUCCESS) {
+        return srs_error_wrap(err, "read frame_mbs_only_flag");
+    }
+    if(!frame_mbs_only_flag &&
+		(err = srs_avc_nalu_read_bit(&bs, mb_adaptive_frame_field_flag)) != ERROR_SUCCESS ) {
+		return srs_error_wrap(err, "read mb_adaptive_frame_field_flag");
+	}
+	if ((err = srs_avc_nalu_read_bit(&bs, direct_8x8_inference_flag)) != ERROR_SUCCESS) {
+        return srs_error_wrap(err, "read direct_8x8_inference_flag");
+    }
+    int8_t frame_cropping_flag;
+	int32_t frame_crop_left_offset = 0;
+	int32_t frame_crop_right_offset = 0;
+	int32_t frame_crop_top_offset = 0;
+    int32_t frame_crop_bottom_offset = 0;
+    if ((err = srs_avc_nalu_read_bit(&bs, frame_cropping_flag)) != ERROR_SUCCESS) {
+        return srs_error_wrap(err, "read frame_cropping_flag");
+    }
+    if(frame_cropping_flag) {
+        if ((err = srs_avc_nalu_read_uev(&bs, frame_crop_left_offset)) != ERROR_SUCCESS) {
+            return srs_error_wrap(err, "read frame_crop_left_offset");
+        }
+        if ((err = srs_avc_nalu_read_uev(&bs, frame_crop_right_offset)) != ERROR_SUCCESS) {
+            return srs_error_wrap(err, "read frame_crop_right_offset");
+        }
+        if ((err = srs_avc_nalu_read_uev(&bs, frame_crop_top_offset)) != ERROR_SUCCESS) {
+            return srs_error_wrap(err, "read frame_crop_top_offset");
+        }
+        if ((err = srs_avc_nalu_read_uev(&bs, frame_crop_bottom_offset)) != ERROR_SUCCESS) {
+            return srs_error_wrap(err, "read frame_crop_bottom_offset");
+        }
+
+    }
+
+    vcodec->width = 16 * (pic_width_in_mbs_minus1 + 1);
+    vcodec->height = 16 * (2 - frame_mbs_only_flag) * (pic_height_in_map_units_minus1 + 1);
+
+    if (separate_colour_plane_flag || chroma_format_idc == 0) {
+        frame_crop_bottom_offset *= (2 - frame_mbs_only_flag);
+        frame_crop_top_offset *= (2 - frame_mbs_only_flag);
+    } else if (!separate_colour_plane_flag && chroma_format_idc > 0) {
+        // Width multipliers for formats 1 (4:2:0) and 2 (4:2:2).
+        if (chroma_format_idc == 1 || chroma_format_idc == 2) {
+          frame_crop_left_offset *= 2;
+          frame_crop_right_offset *= 2;
+        }
+        // Height multipliers for format 1 (4:2:0).
+        if (chroma_format_idc == 1) {
+          frame_crop_top_offset *= 2;
+          frame_crop_bottom_offset *= 2;
+        }
+    }
+
+    // Subtract the crop for each dimension.
+    vcodec->width -= (frame_crop_left_offset + frame_crop_right_offset);
+    vcodec->height -= (frame_crop_top_offset + frame_crop_bottom_offset);
     
+   
     return err;
 }
 
