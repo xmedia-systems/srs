@@ -70,6 +70,7 @@ public:
     int connection_cid;
     int nb_clients;
     uint64_t nb_frames;
+    int64_t last_frames;
 public:
     // The stream total kbps.
     SrsKbps* kbps;

@@ -1023,36 +1023,36 @@ srs_error_t SrsFormat::avc_demux_sps_rbsp(char* rbsp, int nb_rbsp)
     int8_t frame_mbs_only_flag = -1;
     int8_t mb_adaptive_frame_field_flag = -1;
     int8_t direct_8x8_inference_flag = -1;
-    if ((ret = srs_avc_nalu_read_bit(&bs, frame_mbs_only_flag)) != ERROR_SUCCESS) {
-        return srs_error_wrap(ret, "read frame_mbs_only_flag");
+    if ((err = srs_avc_nalu_read_bit(&bs, frame_mbs_only_flag)) != ERROR_SUCCESS) {
+        return srs_error_wrap(err, "read frame_mbs_only_flag");
     }
     if(!frame_mbs_only_flag &&
-		(ret = srs_avc_nalu_read_bit(&bs, mb_adaptive_frame_field_flag)) != ERROR_SUCCESS ) {
-		return srs_error_wrap(ret, "read mb_adaptive_frame_field_flag");
+		(err = srs_avc_nalu_read_bit(&bs, mb_adaptive_frame_field_flag)) != ERROR_SUCCESS ) {
+		return srs_error_wrap(err, "read mb_adaptive_frame_field_flag");
 	}
-	if ((ret = srs_avc_nalu_read_bit(&bs, direct_8x8_inference_flag)) != ERROR_SUCCESS) {
-        return srs_error_wrap(ret, "read direct_8x8_inference_flag");
+	if ((err = srs_avc_nalu_read_bit(&bs, direct_8x8_inference_flag)) != ERROR_SUCCESS) {
+        return srs_error_wrap(err, "read direct_8x8_inference_flag");
     }
     int8_t frame_cropping_flag;
 	int32_t frame_crop_left_offset = 0;
 	int32_t frame_crop_right_offset = 0;
 	int32_t frame_crop_top_offset = 0;
     int32_t frame_crop_bottom_offset = 0;
-    if ((ret = srs_avc_nalu_read_bit(&bs, frame_cropping_flag)) != ERROR_SUCCESS) {
-        return srs_error_wrap(ret, "read frame_cropping_flag");
+    if ((err = srs_avc_nalu_read_bit(&bs, frame_cropping_flag)) != ERROR_SUCCESS) {
+        return srs_error_wrap(err, "read frame_cropping_flag");
     }
     if(frame_cropping_flag) {
-        if ((ret = srs_avc_nalu_read_uev(&bs, frame_crop_left_offset)) != ERROR_SUCCESS) {
-            return srs_error_wrap(ret, "read frame_crop_left_offset");
+        if ((err = srs_avc_nalu_read_uev(&bs, frame_crop_left_offset)) != ERROR_SUCCESS) {
+            return srs_error_wrap(err, "read frame_crop_left_offset");
         }
-        if ((ret = srs_avc_nalu_read_uev(&bs, frame_crop_right_offset)) != ERROR_SUCCESS) {
-            return srs_error_wrap(ret, "read frame_crop_right_offset");
+        if ((err = srs_avc_nalu_read_uev(&bs, frame_crop_right_offset)) != ERROR_SUCCESS) {
+            return srs_error_wrap(err, "read frame_crop_right_offset");
         }
-        if ((ret = srs_avc_nalu_read_uev(&bs, frame_crop_top_offset)) != ERROR_SUCCESS) {
-            return srs_error_wrap(ret, "read frame_crop_top_offset");
+        if ((err = srs_avc_nalu_read_uev(&bs, frame_crop_top_offset)) != ERROR_SUCCESS) {
+            return srs_error_wrap(err, "read frame_crop_top_offset");
         }
-        if ((ret = srs_avc_nalu_read_uev(&bs, frame_crop_bottom_offset)) != ERROR_SUCCESS) {
-            return srs_error_wrap(ret, "read frame_crop_bottom_offset");
+        if ((err = srs_avc_nalu_read_uev(&bs, frame_crop_bottom_offset)) != ERROR_SUCCESS) {
+            return srs_error_wrap(err, "read frame_crop_bottom_offset");
         }
 
     }

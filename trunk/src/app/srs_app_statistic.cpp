@@ -25,6 +25,7 @@
 
 #include <unistd.h>
 #include <sstream>
+#include <math.h>
 using namespace std;
 
 #include <srs_rtmp_stack.hpp>
@@ -115,6 +116,8 @@ SrsStatisticStream::SrsStatisticStream()
     aac_object = SrsAacObjectTypeReserved;
     width = 0;
     height = 0;
+    frame_rate = 0;
+    last_frames = 0;
     
     clk = new SrsWallClock();
     kbps = new SrsKbps(clk);
@@ -370,33 +373,33 @@ srs_error_t SrsStatistic::on_meta_data(SrsRequest* req, SrsAmf0Object* metadata)
         stream->frame_rate = (int)prop->to_number();
     }
     if ((prop = metadata->get_property("stereo")) != NULL) {
-        stream->asound_type = (bool)prop->to_boolean() ? SrsCodecAudioSoundTypeStereo : SrsCodecAudioSoundTypeMono;
+        stream->asound_type = (bool)prop->to_boolean() ? SrsAudioChannelsStereo : SrsAudioChannelsMono;
     } else {
-        stream->asound_type = SrsCodecAudioSoundTypeReserved;
+        stream->asound_type = SrsAudioChannelsReserved;
     }
     if ((prop = metadata->ensure_property_number("audiosamplerate")) != NULL) {
         switch ((int)prop->to_number())
         {
         case 5512:
-            stream->asample_rate = SrsCodecAudioSampleRate5512;
+            stream->asample_rate = SrsAudioSampleRate5512;
             break;
         case 11025:
-            stream->asample_rate = SrsCodecAudioSampleRate11025;
+            stream->asample_rate = SrsAudioSampleRate11025;
             break;
         case 22050:
-            stream->asample_rate = SrsCodecAudioSampleRate22050;
+            stream->asample_rate = SrsAudioSampleRate22050;
             break;
         case 44100:
-            stream->asample_rate = SrsCodecAudioSampleRate44100;
+            stream->asample_rate = SrsAudioSampleRate44100;
             break;
         case 48000:
-            stream->asample_rate = SrsCodecAudioSampleRate48000;
+            stream->asample_rate = SrsAudioSampleRateFB48kHz;
             break;
         default:
-            stream->asample_rate = SrsCodecAudioSampleRateReserved;
+            stream->asample_rate = SrsAudioSampleRateReserved;
         }
     } else {
-        stream->asample_rate = SrsCodecAudioSampleRateReserved;
+        stream->asample_rate = SrsAudioSampleRateReserved;
     }
     return srs_success;
 }
@@ -412,9 +415,9 @@ srs_error_t SrsStatistic::on_video_frames(SrsRequest* req, int nb_frames)
     // update frame rate only once and only if not already supplied in meta data
     if(stream->frame_rate == 0) {
 		if(stream->last_frames > 0)
-			stream->frame_rate = (int)round(nb_frames * 1000 / (float_t)(srs_get_system_time_ms() - stream->last_frames));
+			stream->frame_rate = (int)round(nb_frames * 1000 / (float)(srs_get_system_time() - stream->last_frames));
 		else
-			stream->last_frames = srs_get_system_time_ms();
+			stream->last_frames = srs_get_system_time();
 	}    
     return err;
 }
