@@ -2041,6 +2041,10 @@ bool SrsSource::can_publish(bool is_edge)
 srs_error_t SrsSource::on_meta_data(SrsCommonMessage* msg, SrsOnMetaDataPacket* metadata)
 {
     srs_error_t err = srs_success;
+    SrsStatistic* stat = SrsStatistic::instance();
+    if ((err = stat->on_meta_data(req, metadata->metadata)) != srs_success) {
+        return srs_error_wrap(err, "stats metadata");
+    }
     
     // if allow atc_auto and bravo-atc detected, open atc for vhost.
     SrsAmf0Any* prop = NULL;

@@ -170,6 +170,7 @@ srs_error_t SrsStatisticStream::dumps(SrsJsonObject* obj)
         video->set("level", SrsJsonAny::str(srs_avc_level2str(avc_level).c_str()));
         video->set("width", SrsJsonAny::integer(width));
         video->set("height", SrsJsonAny::integer(height));
+        video->set("frame_rate", SrsJsonAny::integer(frame_rate));
     }
     
     if (!has_audio) {
@@ -415,9 +416,9 @@ srs_error_t SrsStatistic::on_video_frames(SrsRequest* req, int nb_frames)
     // update frame rate only once and only if not already supplied in meta data
     if(stream->frame_rate == 0) {
 		if(stream->last_frames > 0)
-			stream->frame_rate = (int)round(nb_frames * 1000 / (float)(srs_get_system_time() - stream->last_frames));
+			stream->frame_rate = (int)round(nb_frames * 1000 / (float)(srsu2ms(srs_get_system_time()) - stream->last_frames));
 		else
-			stream->last_frames = srs_get_system_time();
+			stream->last_frames = srsu2ms(srs_get_system_time());
 	}    
     return err;
 }
