@@ -699,10 +699,11 @@ srs_error_t SrsFormat::video_avc_demux(SrsBuffer* stream, int64_t timestamp)
     nb_raw = stream->size() - stream->pos();
     
     if (avc_packet_type == SrsVideoAvcFrameTraitSequenceHeader) {
+        avc_demux_sps_pps(stream);
         // TODO: FIXME: Maybe we should ignore any error for parsing sps/pps.
-        if ((err = avc_demux_sps_pps(stream)) != srs_success) {
+        /*if ((err = avc_demux_sps_pps(stream)) != srs_success) {
             return srs_error_wrap(err, "demux SPS/PPS");
-        }
+        }*/
     } else if (avc_packet_type == SrsVideoAvcFrameTraitNALU){
         if ((err = video_nalu_demux(stream)) != srs_success) {
             return srs_error_wrap(err, "demux NALU");
