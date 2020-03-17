@@ -342,8 +342,12 @@ srs_error_t SrsStatistic::on_video_info(SrsRequest* req, SrsVideoCodecId vcodec,
     stream->avc_profile = avc_profile;
     stream->avc_level = avc_level;
     
-    stream->width = width;
-    stream->height = height;
+    if(stream->width == 0) { //if already set by meta data, don't overwrite
+	stream->width = width;
+    }
+    if(stream->height == 0) { //if already set by meta data, don't overwrite
+        stream->height = height;
+    }
     
     return err;
 }
@@ -372,6 +376,12 @@ srs_error_t SrsStatistic::on_meta_data(SrsRequest* req, SrsAmf0Object* metadata)
     SrsAmf0Any* prop = NULL;
     if ((prop = metadata->ensure_property_number("framerate")) != NULL) {
         stream->frame_rate = (int)prop->to_number();
+    }
+    if ((prop = metadata->ensure_property_number("height")) != NULL) {
+        stream->height = (int)prop->to_number();
+    }
+    if ((prop = metadata->ensure_property_number("width")) != NULL) {
+        stream->width = (int)prop->to_number();
     }
     if ((prop = metadata->get_property("stereo")) != NULL) {
         stream->asound_type = (bool)prop->to_boolean() ? SrsAudioChannelsStereo : SrsAudioChannelsMono;
