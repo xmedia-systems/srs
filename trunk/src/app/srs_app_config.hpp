@@ -468,12 +468,20 @@ public:
     virtual std::string get_work_dir();
     // Whether use asprocess mode.
     virtual bool get_asprocess();
+    // Whether empty client IP is ok.
+    virtual bool empty_ip_ok();
     // Get the start wait in ms for gracefully quit.
     virtual srs_utime_t get_grace_start_wait();
     // Get the final wait in ms for gracefully quit.
     virtual srs_utime_t get_grace_final_wait();
     // Whether force to gracefully quit, never fast quit.
     virtual bool is_force_grace_quit();
+    // Whether disable daemon for docker.
+    virtual bool disable_daemon_for_docker();
+    // Whether use inotify to auto reload by watching config file changes.
+    virtual bool inotify_auto_reload();
+    // Whether enable auto reload config for docker.
+    virtual bool auto_reload_for_docker();
 // stream_caster section
 public:
     // Get all stream_caster in config file.

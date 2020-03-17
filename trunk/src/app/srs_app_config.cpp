@@ -3488,7 +3488,8 @@ srs_error_t SrsConfig::check_normal_config()
             && n != "http_server" && n != "stream_caster"
             && n != "utc_time" && n != "work_dir" && n != "asprocess"
             && n != "ff_log_level" && n != "grace_final_wait" && n != "force_grace_quit"
-            && n != "grace_start_wait"
+            && n != "grace_start_wait" && n != "empty_ip_ok" && n != "disable_daemon_for_docker"
+            && n != "inotify_auto_reload" && n != "auto_reload_for_docker"
             ) {
             return srs_error_new(ERROR_SYSTEM_CONFIG_INVALID, "illegal directive %s", n.c_str());
         }
@@ -4051,6 +4052,18 @@ bool SrsConfig::get_asprocess()
     return SRS_CONF_PERFER_FALSE(conf->arg0());
 }
 
+bool SrsConfig::empty_ip_ok()
+{
+    static bool DEFAULT = true;
+
+    SrsConfDirective* conf = root->get("empty_ip_ok");
+    if (!conf || conf->arg0().empty()) {
+        return DEFAULT;
+    }
+
+    return SRS_CONF_PERFER_TRUE(conf->arg0());
+}
+
 srs_utime_t SrsConfig::get_grace_start_wait()
 {
     static srs_utime_t DEFAULT = 2300 * SRS_UTIME_MILLISECONDS;
@@ -4085,6 +4098,42 @@ bool SrsConfig::is_force_grace_quit()
     }
 
     return SRS_CONF_PERFER_FALSE(conf->arg0());
+}
+
+bool SrsConfig::disable_daemon_for_docker()
+{
+    static bool DEFAULT = true;
+
+    SrsConfDirective* conf = root->get("disable_daemon_for_docker");
+    if (!conf || conf->arg0().empty()) {
+        return DEFAULT;
+    }
+
+    return SRS_CONF_PERFER_TRUE(conf->arg0());
+}
+
+bool SrsConfig::inotify_auto_reload()
+{
+    static bool DEFAULT = false;
+
+    SrsConfDirective* conf = root->get("inotify_auto_reload");
+    if (!conf || conf->arg0().empty()) {
+        return DEFAULT;
+    }
+
+    return SRS_CONF_PERFER_FALSE(conf->arg0());
+}
+
+bool SrsConfig::auto_reload_for_docker()
+{
+    static bool DEFAULT = true;
+
+    SrsConfDirective* conf = root->get("auto_reload_for_docker");
+    if (!conf || conf->arg0().empty()) {
+        return DEFAULT;
+    }
+
+    return SRS_CONF_PERFER_TRUE(conf->arg0());
 }
 
 vector<SrsConfDirective*> SrsConfig::get_stream_casters()

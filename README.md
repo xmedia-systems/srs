@@ -5,8 +5,8 @@
 [![](https://codecov.io/gh/ossrs/srs/branch/3.0release/graph/badge.svg)](https://codecov.io/gh/ossrs/srs/branch/3.0release)
 [![](https://cloud.githubusercontent.com/assets/2777660/22814959/c51cbe72-ef92-11e6-81cc-32b657b285d5.png)](https://github.com/ossrs/srs/wiki/v1_CN_Contact#wechat)
 
-SRS/3.0，[OuXuli][release3]，是一个流媒体直播集群，高效、稳定、易用，简单而快乐。<br/>
-SRS(Simple RTMP Server) is a live streaming cluster, high efficiency, stable and simple.
+SRS/3.0，[OuXuli][release3]，是一个流媒体集群，支持RTMP/HLS/WebRTC/SRT/GB28181，高效、稳定、易用，简单而快乐。<br/>
+SRS is a RTMP/HLS/WebRTC/SRT/GB28181 streaming cluster, high efficiency, stable and simple.
 
 > Remark: Although SRS is licenced under [MIT][LICENSE], but there are some depended libraries which are distributed using their own licenses, please read [License Mixing][LicenseMixing].
 
@@ -146,6 +146,16 @@ For previous versions, please read:
 
 ## V3 changes
 
+* v3.0, 2020-03-12, For [#1635][bug #1635], inotify watch ConfigMap for reload. 3.0.134
+* v3.0, 2020-03-12, For [#1635][bug #1635], support auto reaload config by inotify. 3.0.129
+* v3.0, 2020-03-12, For [#1630][bug #1630], disable cache for stream changing, and drop dup header. 3.0.128
+* v3.0, 2020-03-12, For [#1594][bug #1594], detect and disable daemon for docker. 3.0.127
+* v3.0, 2020-03-12, For [#1634][bug #1634], always check status in thread loop. 3.0.126
+* v3.0, 2020-03-11, For [#1634][bug #1634], refactor output with datetime for ingest/encoder/exec. 3.0.125
+* v3.0, 2020-03-11, For [#1634][bug #1634], fix quit by accident SIGTERM while killing FFMPEG. 3.0.124
+* <strong>v3.0, 2020-03-05, [3.0 beta2(3.0.123)][r3.0b2] released. 122170 lines.</strong>
+* v3.0, 2020-02-21, For [#1598][bug #1598], support SLB health checking by TCP. 3.0.123
+* v3.0, 2020-02-21, Fix bug for librtmp client ipv4/ipv6 socket. 3.0.122
 * v3.0, 2020-02-18, For [#1579][bug #1579], support start/final wait for gracefully quit. 3.0.121
 * v3.0, 2020-02-18, For [#1579][bug #1579], support force gracefully quit. 3.0.120
 * v3.0, 2020-02-18, For [#1579][bug #1579], support gracefully quit. 3.0.119
@@ -292,7 +302,6 @@ For previous versions, please read:
 * v3.0, 2016-12-15, fix [#717][bug #717], [#691][bug #691], http api/static/stream support cors. 3.0.9
 * v3.0, 2016-12-08, Fix [#105][bug #105], support log rotate signal SIGUSR1. 3.0.8
 * v3.0, 2016-12-07, fix typo and refine grammar. 3.0.7
-* v3.0, 2015-10-23, fix [#467][bug #467], support write log to kafka. 3.0.6
 * v3.0, 2015-10-20, fix [#502][bug #502], support snapshot with http-callback or transcoder. 3.0.5
 * v3.0, 2015-09-19, support amf0 and json to convert with each other.
 * v3.0, 2015-09-19, json objects support dumps to string.
@@ -743,6 +752,7 @@ For previous versions, please read:
 
 ## Releases
 
+* 2020-03-05, [Release v3.0-b2][r3.0b2], 3.0 beta2, 3.0.123, 122170 lines.
 * 2020-02-14, [Release v3.0-b1][r3.0b1], 3.0 beta1, 3.0.117, 121964 lines.
 * 2020-02-02, [Release v3.0-b0][r3.0b0], 3.0 beta0, 3.0.112, 121709 lines.
 * 2020-01-21, [Release v3.0-a9][r3.0a9], 3.0 alpha9, 3.0.105, 121577 lines.
@@ -1655,10 +1665,16 @@ Winlin
 [bug #1595]: https://github.com/ossrs/srs/issues/1595
 [bug #1601]: https://github.com/ossrs/srs/issues/1601
 [bug #1579]: https://github.com/ossrs/srs/issues/1579
-[bug #xxxxxxxxxxxxx]: https://github.com/ossrs/srs/issues/xxxxxxxxxxxxx
+[bug #1598]: https://github.com/ossrs/srs/issues/1598
+[bug #1634]: https://github.com/ossrs/srs/issues/1634
+[bug #1594]: https://github.com/ossrs/srs/issues/1594
+[bug #1630]: https://github.com/ossrs/srs/issues/1630
+[bug #1635]: https://github.com/ossrs/srs/issues/1635
+[bug #yyyyyyyyyyyyy]: https://github.com/ossrs/srs/issues/yyyyyyyyyyyyy
 
 [exo #828]: https://github.com/google/ExoPlayer/pull/828
 
+[r3.0b2]: https://github.com/ossrs/srs/releases/tag/v3.0-b2
 [r3.0b1]: https://github.com/ossrs/srs/releases/tag/v3.0-b1
 [r3.0b0]: https://github.com/ossrs/srs/releases/tag/v3.0-b0
 [r3.0a9]: https://github.com/ossrs/srs/releases/tag/v3.0-a9
