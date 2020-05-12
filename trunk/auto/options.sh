@@ -20,7 +20,7 @@ SRS_NGINX=NO
 SRS_FFMPEG_TOOL=NO
 SRS_LIBRTMP=NO
 SRS_RESEARCH=NO
-SRS_UTEST=YES
+SRS_UTEST=NO
 SRS_GPERF=NO # Performance test: tcmalloc
 SRS_GPERF_MC=NO # Performance test: gperf memory check
 SRS_GPERF_MD=NO # Performance test: gperf memory defence
@@ -105,6 +105,8 @@ SRS_TOOL_AR=ar
 SRS_TOOL_LD=ld
 SRS_TOOL_RANDLIB=randlib
 SRS_EXTRA_FLAGS=
+# Set the object files tag name.
+SRS_BUILD_TAG=
 
 #####################################################################################
 # menu
@@ -171,6 +173,7 @@ Toolchain options:          @see https://github.com/ossrs/srs/issues/1547#issuec
   --ld=<LD>                 Use linker tool LD, default is ld.
   --randlib=<RANDLIB>       Use randlib tool RANDLIB, default is randlib.
   --extra-flags=<EFLAGS>    Set EFLAGS as CFLAGS and CXXFLAGS. Also passed to ST as EXTRA_CFLAGS.
+  --build-tag=<TAG>         Set the build object directory suffix.
 
 Conflicts:
   1. --with-gmc vs --with-gmp: 
@@ -254,6 +257,7 @@ function parse_user_option() {
         --ld)                           SRS_TOOL_LD=${value}        ;;
         --randlib)                      SRS_TOOL_RANDLIB=${value}   ;;
         --extra-flags)                  SRS_EXTRA_FLAGS=${value}    ;;
+        --build-tag)                    SRS_BUILD_TAG=${value}      ;;
 
         --x86-x64)                      SRS_X86_X64=YES             ;;
         --x86-64)                       SRS_X86_X64=YES             ;;
@@ -284,18 +288,16 @@ function parse_user_option() {
         --with-hls)                     SRS_HLS=YES                 ;;
         --with-dvr)                     SRS_DVR=YES                 ;;
 
-        --without-stream-caster) ;&
-        --without-ingest) ;&
-        --without-ssl) ;&
-        --without-stat) ;&
-        --without-transcode) ;&
-        --without-http-callback) ;&
-        --without-http-server) ;&
-        --without-http-api) ;&
-        --without-hls) ;&
-        --without-dvr)
-            echo "ignore option \"$option\""
-        ;;
+        --without-stream-caster)        echo "ignore option \"$option\"" ;;
+        --without-ingest)               echo "ignore option \"$option\"" ;;
+        --without-ssl)                  echo "ignore option \"$option\"" ;;
+        --without-stat)                 echo "ignore option \"$option\"" ;;
+        --without-transcode)            echo "ignore option \"$option\"" ;;
+        --without-http-callback)        echo "ignore option \"$option\"" ;;
+        --without-http-server)          echo "ignore option \"$option\"" ;;
+        --without-http-api)             echo "ignore option \"$option\"" ;;
+        --without-hls)                  echo "ignore option \"$option\"" ;;
+        --without-dvr)                  echo "ignore option \"$option\"" ;;
 
         *)
             echo "$0: error: invalid option \"$option\""
@@ -386,7 +388,7 @@ function apply_user_presets() {
         SRS_HDS=YES
         SRS_LIBRTMP=YES
         SRS_RESEARCH=NO
-        SRS_UTEST=YES
+        SRS_UTEST=NO
         SRS_STATIC=NO
     fi
 
@@ -413,7 +415,7 @@ function apply_user_presets() {
         SRS_HDS=YES
         SRS_LIBRTMP=YES
         SRS_RESEARCH=NO
-        SRS_UTEST=YES
+        SRS_UTEST=NO
         SRS_STATIC=NO
     fi
 
@@ -540,6 +542,7 @@ SRS_AUTO_CONFIGURE="--prefix=${SRS_PREFIX}"
     if [ $SRS_LOG_TRACE = YES ]; then SRS_AUTO_CONFIGURE="${SRS_AUTO_CONFIGURE} --log-trace"; fi
     if [ $SRS_GCOV = YES ]; then SRS_AUTO_CONFIGURE="${SRS_AUTO_CONFIGURE} --gcov"; fi
     if [[ $SRS_EXTRA_FLAGS != '' ]]; then SRS_AUTO_CONFIGURE="${SRS_AUTO_CONFIGURE} --extra-flags=\\\"$SRS_EXTRA_FLAGS\\\""; fi
+    if [[ $SRS_BUILD_TAG != '' ]]; then SRS_AUTO_CONFIGURE="${SRS_AUTO_CONFIGURE} --build-tag=\\\"$SRS_BUILD_TAG\\\""; fi
     if [[ $SRS_TOOL_CC != '' ]]; then SRS_AUTO_CONFIGURE="${SRS_AUTO_CONFIGURE} --cc=$SRS_TOOL_CC"; fi
     if [[ $SRS_TOOL_CXX != '' ]]; then SRS_AUTO_CONFIGURE="${SRS_AUTO_CONFIGURE} --cxx=$SRS_TOOL_CXX"; fi
     if [[ $SRS_TOOL_AR != '' ]]; then SRS_AUTO_CONFIGURE="${SRS_AUTO_CONFIGURE} --ar=$SRS_TOOL_AR"; fi
@@ -562,16 +565,12 @@ function check_option_conflicts() {
         echo "For crossbuild, must not use default toolchain, cc: $SRS_TOOL_CC, cxx: $SRS_TOOL_CXX, ar: $SRS_TOOL_AR"; exit -1
     fi
 
-    if [ $SRS_OSX = YES ]; then
-        echo "We don't support OSX, please use docker https://github.com/ossrs/srs-docker"; exit -1
-    fi
-
     if [[ $SRS_NGINX == YES ]]; then
-        echo "Don't support building NGINX, please use docker https://github.com/ossrs/srs-docker"; exit -1
+        echo "Don't support building NGINX, please use docker https://github.com/ossrs/srs-docker"; exit -1;
     fi
 
     if [[ $SRS_FFMPEG_TOOL == YES ]]; then
-        echo "Don't support building FFMPEG, please use docker https://github.com/ossrs/srs-docker"; exit -1
+        echo "Don't support building FFMPEG, please use docker https://github.com/ossrs/srs-docker"; exit -1;
     fi
 
     # TODO: FIXME: check more os.
