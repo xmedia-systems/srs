@@ -97,7 +97,7 @@ GDBDebug=" -g -O0"
 # the warning level.
 WarnLevel=" -Wall"
 # the compile standard.
-CppStd="-ansi"
+CppStd="-std=c++11"
 # for library compile
 if [[ $SRS_EXPORT_LIBRTMP_PROJECT == YES ]]; then
     LibraryCompile=" -fPIC"
@@ -163,6 +163,7 @@ SrsLinkOptions="-ldl";
 if [[ $SRS_SSL == YES && $SRS_USE_SYS_SSL == YES ]]; then
     SrsLinkOptions="${SrsLinkOptions} -lssl -lcrypto";
 fi
+SrsLinkOptions="${SrsLinkOptions} -L/opt/boost/lib -lpthread -lboost_system -lboost_thread"
 # if static specified, add static
 # TODO: FIXME: remove static.
 if [ $SRS_STATIC = YES ]; then
@@ -224,7 +225,7 @@ fi
 if [ $SRS_EXPORT_LIBRTMP_PROJECT = NO ]; then
     MODULE_ID="APP" 
     MODULE_DEPENDS=("CORE" "KERNEL" "PROTOCOL" "SERVICE")
-    ModuleLibIncs=(${LibSTRoot} ${SRS_OBJS_DIR} ${LibSSLRoot})
+    ModuleLibIncs=(${LibSTRoot} ${SRS_OBJS_DIR} ${LibSSLRoot} "/opt/boost/include")
     MODULE_FILES=("srs_app_server" "srs_app_conn" "srs_app_rtmp_conn" "srs_app_source" 
             "srs_app_refer" "srs_app_hls" "srs_app_forward" "srs_app_encoder" "srs_app_http_stream"
             "srs_app_thread" "srs_app_bandwidth" "srs_app_st" "srs_app_log" "srs_app_config" 
