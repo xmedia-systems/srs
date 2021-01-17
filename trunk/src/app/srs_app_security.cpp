@@ -26,7 +26,94 @@
 #include <srs_kernel_error.hpp>
 #include <srs_app_config.hpp>
 
+#include <math.h>
+
 using namespace std;
+
+
+unsigned int ip2ui(const char *ip)
+{
+	char myip[16];
+	strncpy(myip, ip, sizeof(myip));
+	/* An IP consists of four ranges. */
+	long ipAsUInt = 0;
+	/* Deal with first range. */
+	char *cPtr = strtok(myip, ".");
+	if(cPtr) ipAsUInt += atoi(cPtr) * pow(256, 3);
+
+	/* Proceed with the remaining ones. */
+	int exponent = 2;
+	while(cPtr && exponent >= 0)
+	{
+		cPtr = strtok(NULL, ".\0");
+		if(cPtr) ipAsUInt += atoi(cPtr) * pow(256, exponent--);
+	}
+
+	return ipAsUInt;
+}
+
+char *ui2ip(unsigned int ipAsUInt)
+{
+	char *ip = (char *)malloc(16*sizeof(char));
+	int exponent;
+	for(exponent = 3; exponent >= 0; --exponent)
+	{
+		int r = ipAsUInt / pow(256, exponent);
+		char buf[4];
+		sprintf(buf, "%d", r);
+		strcat(ip, buf);
+		strcat(ip, ".");
+		ipAsUInt -= r*pow(256, exponent);
+	}
+	/* Replace last dot with '\0'. */
+	ip[strlen(ip)-1] = 0;
+	return ip;
+}
+
+unsigned int parse_bitmask(const char *bitmask)
+{
+	unsigned int times = (unsigned int)atol(bitmask)-1, i, bitmaskAsUInt = 1;
+	/* Fill in set bits (1) from the right. */
+	for(i=0; i<times; ++i)
+	{
+		bitmaskAsUInt <<= 1;
+		bitmaskAsUInt |= 1;
+	}
+	/* Shift in unset bits from the right. */
+	for(i=0; i<32-times-1; ++i)
+		bitmaskAsUInt <<= 1;
+	return bitmaskAsUInt;
+}
+
+
+int parse_range(const char *range, unsigned int *from, unsigned int *to)
+{
+	char myrange[24];
+	strncpy(myrange, range, sizeof(myrange));
+	char *ip = strtok(myrange, "/");
+	char *bitmask = strtok(NULL, "\0");
+	if(!ip)
+		return 0;
+	unsigned int ipAsUint = ip2ui(ip);
+	
+	if(!bitmask) {
+		*from = ipAsUint;
+		*to = *from;
+	} else {
+		unsigned int bitmaskAsUint = parse_bitmask(bitmask);
+		*from = ipAsUint & bitmaskAsUint;
+		*to = *from | ~bitmaskAsUint;
+	}
+	return 1;
+}
+
+int in_range(const char *range, const char *ip)
+{
+	unsigned int from, to, ipAsUint;
+	ipAsUint = ip2ui(ip);
+	return ipAsUint && parse_range(range, &from, &to) && from <= ipAsUint && ipAsUint <= to;
+}
+
 
 SrsSecurity::SrsSecurity()
 {
@@ -92,7 +179,7 @@ srs_error_t SrsSecurity::allow_check(SrsConfDirective* rules, SrsRtmpConnType ty
                 if (rule->arg0() != "play") {
                     break;
                 }
-                if (rule->arg1() == "all" || rule->arg1() == ip) {
+                if (!match_rule(rule, ip)) {
                     return srs_success; // OK
                 }
                 break;
@@ -102,7 +189,7 @@ srs_error_t SrsSecurity::allow_check(SrsConfDirective* rules, SrsRtmpConnType ty
                 if (rule->arg0() != "publish") {
                     break;
                 }
-                if (rule->arg1() == "all" || rule->arg1() == ip) {
+                if (!match_rule(rule, ip)) {
                     return srs_success; // OK
                 }
                 break;
@@ -132,7 +219,7 @@ srs_error_t SrsSecurity::deny_check(SrsConfDirective* rules, SrsRtmpConnType typ
                 if (rule->arg0() != "play") {
                     break;
                 }
-                if (rule->arg1() == "all" || rule->arg1() == ip) {
+                if (!match_rule(rule, ip)) {
                     return srs_error_new(ERROR_SYSTEM_SECURITY_DENY, "deny by rule<%s>", rule->arg1().c_str());
                 }
                 break;
@@ -142,7 +229,7 @@ srs_error_t SrsSecurity::deny_check(SrsConfDirective* rules, SrsRtmpConnType typ
                 if (rule->arg0() != "publish") {
                     break;
                 }
-                if (rule->arg1() == "all" || rule->arg1() == ip) {
+                if (!match_rule(rule, ip)) {
                     return srs_error_new(ERROR_SYSTEM_SECURITY_DENY, "deny by rule<%s>", rule->arg1().c_str());
                 }
                 break;
@@ -154,4 +241,14 @@ srs_error_t SrsSecurity::deny_check(SrsConfDirective* rules, SrsRtmpConnType typ
     
     return srs_success; // OK
 }
+
+bool SrsSecurity::match_rule(SrsConfDirective* rule, std::string ip) {
+	if (rule->arg1() == "all") {
+		return true;
+	}
+	return 0 != in_range(rule->arg1().c_str(), ip.c_str());
+}
+
+
+
 

@@ -49,6 +49,7 @@ private:
     virtual srs_error_t do_check(SrsConfDirective* rules, SrsRtmpConnType type, std::string ip, SrsRequest* req);
     virtual srs_error_t allow_check(SrsConfDirective* rules, SrsRtmpConnType type, std::string ip);
     virtual srs_error_t deny_check(SrsConfDirective* rules, SrsRtmpConnType type, std::string ip);
+    bool match_rule(SrsConfDirective* rule, std::string ip);
 };
 
 #endif
