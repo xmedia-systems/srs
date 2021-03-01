@@ -4208,6 +4208,7 @@ VOID TEST(KernelUtilityTest, CoverBitsBufferAll)
     }
 }
 
+#ifndef SRS_AUTO_OSX
 extern _srs_gettimeofday_t _srs_gettimeofday;
 int mock_gettimeofday(struct timeval* /*tp*/, struct timezone* /*tzp*/) {
 	return -1;
@@ -4238,6 +4239,7 @@ VOID TEST(KernelUtilityTest, CoverTimeSpecial)
 		EXPECT_TRUE(-1 == srs_update_system_time());
 	}
 }
+#endif
 
 extern int64_t _srs_system_time_startup_time;
 extern int64_t _srs_system_time_us_cache;
@@ -4821,7 +4823,7 @@ VOID TEST(KernelMP4Test, CoverMP4CodecSingleFrame)
             HELPER_EXPECT_SUCCESS(enc.write_sample(
                 &fmt, SrsMp4HandlerTypeVIDE, fmt.video->frame_type, fmt.video->avc_packet_type, 0, 0, (uint8_t*)fmt.raw, fmt.nb_raw
             ));
-            EXPECT_EQ(768, enc.width); EXPECT_EQ(320, enc.height);
+            EXPECT_EQ(768, (int)enc.width); EXPECT_EQ(320, (int)enc.height);
         }
 
         if (true) {
@@ -4934,7 +4936,7 @@ VOID TEST(KernelMP4Test, CoverMP4MultipleVideos)
             HELPER_EXPECT_SUCCESS(enc.write_sample(
                 &fmt, SrsMp4HandlerTypeVIDE, fmt.video->frame_type, fmt.video->avc_packet_type, 0, 0, (uint8_t*)fmt.raw, fmt.nb_raw
             ));
-            EXPECT_EQ(768, enc.width); EXPECT_EQ(320, enc.height);
+            EXPECT_EQ(768, (int)enc.width); EXPECT_EQ(320, (int)enc.height);
         }
 
         if (true) {
@@ -5022,7 +5024,7 @@ VOID TEST(KernelMP4Test, CoverMP4MultipleCTTs)
             HELPER_EXPECT_SUCCESS(enc.write_sample(
                 &fmt, SrsMp4HandlerTypeVIDE, fmt.video->frame_type, fmt.video->avc_packet_type, 0, 0, (uint8_t*)fmt.raw, fmt.nb_raw
             ));
-            EXPECT_EQ(768, enc.width); EXPECT_EQ(320, enc.height);
+            EXPECT_EQ(768, (int)enc.width); EXPECT_EQ(320, (int)enc.height);
         }
 
         if (true) {
@@ -5124,7 +5126,7 @@ VOID TEST(KernelMP4Test, CoverMP4MultipleAVs)
             HELPER_EXPECT_SUCCESS(enc.write_sample(
                 &fmt, SrsMp4HandlerTypeVIDE, fmt.video->frame_type, fmt.video->avc_packet_type, 0, 0, (uint8_t*)fmt.raw, fmt.nb_raw
             ));
-            EXPECT_EQ(768, enc.width); EXPECT_EQ(320, enc.height);
+            EXPECT_EQ(768, (int)enc.width); EXPECT_EQ(320, (int)enc.height);
         }
 
         if (true) {
@@ -5238,7 +5240,7 @@ VOID TEST(KernelMP4Test, CoverMP4CodecErrorNoFrames)
             HELPER_EXPECT_SUCCESS(enc.write_sample(
                 &fmt, SrsMp4HandlerTypeVIDE, fmt.video->frame_type, fmt.video->avc_packet_type, 0, 0, (uint8_t*)fmt.raw, fmt.nb_raw
             ));
-            EXPECT_EQ(768, enc.width); EXPECT_EQ(320, enc.height);
+            EXPECT_EQ(768, (int)enc.width); EXPECT_EQ(320, (int)enc.height);
         }
 
         if (true) {
