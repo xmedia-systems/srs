@@ -159,6 +159,7 @@ public:
     virtual SrsJsonArray* add(SrsJsonAny* value);
     // alias to add.
     virtual SrsJsonArray* append(SrsJsonAny* value);
+    virtual void remove(int index);
 public:
     virtual std::string dumps();
     virtual SrsAmf0Any* to_amf0();

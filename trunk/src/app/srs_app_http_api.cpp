@@ -757,12 +757,22 @@ srs_error_t SrsGoApiStreams::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessa
         if (!stream) {
             SrsJsonArray* data = SrsJsonAny::array();
             obj->set("streams", data);
-            
             if ((err = stat->dumps_streams(data)) != srs_success) {
                 int code = srs_error_code(err);
                 srs_error_reset(err);
                 return srs_api_response_code(w, r, code);
             }
+            string active = r->query_get("active");
+            if (active == "true" || active == "false") {
+				for(int i=0; i < data->count(); i++) {
+					SrsJsonObject *stream = data->at(i)->to_object();
+					SrsJsonObject *pub = stream->get_property("publish")->to_object();
+					if (pub && (active == "true") != pub->get_property("active")->to_boolean()) {
+						data->remove(i);
+						srs_freep(stream);						
+					}
+				}
+			}
         } else {
             SrsJsonObject* data = SrsJsonAny::object();
             obj->set("stream", data);;
