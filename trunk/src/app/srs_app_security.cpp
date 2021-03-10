@@ -179,7 +179,7 @@ srs_error_t SrsSecurity::allow_check(SrsConfDirective* rules, SrsRtmpConnType ty
                 if (rule->arg0() != "play") {
                     break;
                 }
-                if (!match_rule(rule, ip)) {
+                if (match_rule(rule, ip)) {
                     return srs_success; // OK
                 }
                 break;
@@ -189,7 +189,7 @@ srs_error_t SrsSecurity::allow_check(SrsConfDirective* rules, SrsRtmpConnType ty
                 if (rule->arg0() != "publish") {
                     break;
                 }
-                if (!match_rule(rule, ip)) {
+                if (match_rule(rule, ip)) {
                     return srs_success; // OK
                 }
                 break;
@@ -219,7 +219,7 @@ srs_error_t SrsSecurity::deny_check(SrsConfDirective* rules, SrsRtmpConnType typ
                 if (rule->arg0() != "play") {
                     break;
                 }
-                if (!match_rule(rule, ip)) {
+                if (match_rule(rule, ip)) {
                     return srs_error_new(ERROR_SYSTEM_SECURITY_DENY, "deny by rule<%s>", rule->arg1().c_str());
                 }
                 break;
@@ -229,7 +229,7 @@ srs_error_t SrsSecurity::deny_check(SrsConfDirective* rules, SrsRtmpConnType typ
                 if (rule->arg0() != "publish") {
                     break;
                 }
-                if (!match_rule(rule, ip)) {
+                if (match_rule(rule, ip)) {
                     return srs_error_new(ERROR_SYSTEM_SECURITY_DENY, "deny by rule<%s>", rule->arg1().c_str());
                 }
                 break;
