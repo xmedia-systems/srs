@@ -763,11 +763,13 @@ srs_error_t SrsGoApiStreams::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessa
                 return srs_api_response_code(w, r, code);
             }
             string active = r->query_get("active");
-            if (active == "true" || active == "false") {
+            string str_true = "true";
+            string str_false = "false";
+            if (active == str_true || active == str_false) {
 				for(int i=0; i < data->count(); i++) {
 					SrsJsonObject *stream = data->at(i)->to_object();
 					SrsJsonObject *pub = stream->get_property("publish")->to_object();
-					if (pub && (active == "true") != pub->get_property("active")->to_boolean()) {
+					if (pub && (active == str_true) != pub->get_property("active")->to_boolean()) {
 						data->remove(i);
 						srs_freep(stream);						
 					}
