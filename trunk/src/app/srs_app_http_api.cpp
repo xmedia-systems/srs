@@ -769,7 +769,7 @@ srs_error_t SrsGoApiStreams::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessa
 				for(int i=0; i < data->count(); i++) {
 					SrsJsonObject *stream = data->at(i)->to_object();
 					SrsJsonObject *pub = stream->get_property("publish")->to_object();
-					if (pub && (active == str_true) != pub->get_property("active")->to_boolean()) {
+					if (!pub || ((active == str_true) != pub->get_property("active")->to_boolean())) {
 						data->remove(i);
 						srs_freep(stream);						
 					}
