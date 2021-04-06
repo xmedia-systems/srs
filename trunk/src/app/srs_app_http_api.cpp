@@ -766,12 +766,14 @@ srs_error_t SrsGoApiStreams::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessa
             string str_true = "true";
             string str_false = "false";
             if (active == str_true || active == str_false) {
-				for(int i=0; i < data->count(); i++) {
+				for(int i=0; i < data->count(); ) {
 					SrsJsonObject *stream = data->at(i)->to_object();
 					SrsJsonObject *pub = stream->get_property("publish")->to_object();
-					if (!pub || ((active == str_true) != pub->get_property("active")->to_boolean())) {
+					if (pub && (active == str_true) != pub->get_property("active")->to_boolean()) {
 						data->remove(i);
 						srs_freep(stream);						
+					} else {
+						i++;
 					}
 				}
 			}
