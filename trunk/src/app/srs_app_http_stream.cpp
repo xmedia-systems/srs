@@ -600,7 +600,7 @@ srs_error_t SrsLiveStream::do_serve_http(ISrsHttpResponseWriter* w, ISrsHttpMess
     
     // update the statistic when source disconveried.
     SrsStatistic* stat = SrsStatistic::instance();
-    if ((err = stat->on_client(_srs_context->get_id(), req, hc, SrsRtmpConnPlay)) != srs_success) {
+    if ((err = stat->on_client(srs_int2str(_srs_context->get_id()), req, hc, SrsRtmpConnPlay)) != srs_success) {
         return srs_error_wrap(err, "stat on client");
     }
     
@@ -1132,8 +1132,8 @@ srs_error_t SrsHttpStreamServer::hijack(ISrsHttpMessage* request, ISrsHttpHandle
     
     // trigger edge to fetch from origin.
     bool vhost_is_edge = _srs_config->get_vhost_is_edge(r->vhost);
-    srs_trace("flv: source url=%s, is_edge=%d, source_id=%d[%d]",
-        r->get_stream_url().c_str(), vhost_is_edge, s->source_id(), s->source_id());
+    srs_trace("flv: source url=%s, is_edge=%d, source_id=%d/%d",
+        r->get_stream_url().c_str(), vhost_is_edge, s->source_id(), s->pre_source_id());
     
     return err;
 }

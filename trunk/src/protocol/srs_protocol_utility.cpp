@@ -122,7 +122,7 @@ void srs_discovery_tc_url(string tcUrl, string& schema, string& host, string& vh
     srs_vhost_resolve(vhost, stream, param);
     
     // Ignore when the param only contains the default vhost.
-    if (param == "?vhost="SRS_CONSTS_RTMP_DEFAULT_VHOST) {
+    if (param == "?vhost=" SRS_CONSTS_RTMP_DEFAULT_VHOST) {
         param = "";
     }
 }
@@ -181,11 +181,11 @@ string srs_generate_tc_url(string host, string vhost, string app, int port)
     return tcUrl;
 }
 
-string srs_generate_stream_with_query(string host, string vhost, string stream, string param)
+string srs_generate_stream_with_query(string host, string vhost, string stream, string param, bool with_vhost)
 {
     string url = stream;
     string query = param;
-    
+
     // If no vhost in param, try to append one.
     string guessVhost;
     if (query.find("vhost=") == string::npos) {
@@ -195,10 +195,27 @@ string srs_generate_stream_with_query(string host, string vhost, string stream, 
             guessVhost = host;
         }
     }
-    
+
     // Well, if vhost exists, always append in query string.
-    if (!guessVhost.empty()) {
+    if (!guessVhost.empty() && query.find("vhost=") == string::npos) {
         query += "&vhost=" + guessVhost;
+    }
+
+    // If not pass in query, remove it.
+    if (!with_vhost) {
+        size_t pos = query.find("&vhost=");
+        if (pos == string::npos) {
+            pos = query.find("vhost=");
+        }
+
+        size_t end = query.find("&", pos + 1);
+        if (end == string::npos) {
+            end = query.length();
+        }
+
+        if (pos != string::npos && end != string::npos && end > pos) {
+            query = query.substr(0, pos) + query.substr(end);
+        }
     }
     
     // Remove the start & when param is empty.
